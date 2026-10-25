@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} · LSPU Events{% endblock %}
+{% block content %}
+<a class="back-link detail-back" href="{{ url_for('student_home') }}">← Back to events</a>
+<section class="event-detail-layout">
+  <div class="detail-visual"><span class="detail-visual-overline">LSPU · CAMPUS EVENT</span><span class="detail-visual-symbol" aria-hidden="true">✳</span><span class="detail-visual-bottom">PEOPLE · IDEAS · EXPERIENCES</span></div>
+  <div class="detail-main"><div class="event-card-meta"><span class="pill">{{ event.status }}</span><span class="event-program">{{ event.program }}</span></div><p class="section-overline detail-overline">EVENT DETAILS</p><h1>{{ event.title }}</h1><p class="detail-description">{{ event.description }}</p>
+    <div class="detail-facts"><div><span class="detail-fact-label">DATE</span><strong>{{ event.event_date }}</strong></div><div><span class="detail-fact-label">TIME</span><strong>{{ event.start_time.strftime('%H:%M') }}–{{ event.end_time.strftime('%H:%M') }}</strong></div><div><span class="detail-fact-label">VENUE</span><strong>{{ event.venue }}</strong></div><div><span class="detail-fact-label">REGISTRATION</span><strong>{{ event.confirmed_count }} / {{ event.capacity }} confirmed</strong></div></div>
+    <div class="detail-action">
+      {% if registration %}
+        <p class="inline-success">✓ You're registered for this event.</p>
+        <div class="form-stack"><a class="btn btn-primary" href="{{ url_for('receipt',rid=registration.id) }}">View registration receipt <span aria-hidden="true">↗</span></a>
+        {% if not registration.time_in and not registration.time_out %}<form method="post" action="{{ url_for('cancel_registration',rid=registration.id) }}" onsubmit="return confirm('Cancel your registration? If someone is waiting, the next student may be promoted.');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-light" type="submit">Cancel registration</button></form>{% endif %}</div>
+      {% elif waiting %}
+        <div class="form-stack"><span class="pill">You're on the waiting list</span><form method="post" action="{{ url_for('cancel_waitlist', wid=waiting.id) }}" onsubmit="return confirm('Leave this event waiting list?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-light" type="submit">Leave waiting list</button></form></div>
+      {% elif event.status=='Ended' or event.archived %}
+        <button class="btn btn-light" disabled>Registration closed</button>
+      {% else %}
+        <form method="post" action="{{ url_for('register',eid=event.id) }}" class="form-stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <p class="section-overline">CONFIRM YOUR DETAILS</p>
+          <label>Full name<input name="full_name" required maxlength="120" value="{{ current_user.name }}"></label>
+          <label>Student number<input name="student_number" required maxlength="40" value="{{ current_user.student_number or '' }}"></label>
+          <label>Year level<select name="year_level" required>{% for y in ['First Year','Second Year','Third Year','Fourth Year'] %}<option {% if current_user.year_level == y %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></label>
+          <label>Section<input name="section" required pattern="[1-4][A-Z]" maxlength="2" value="{{ current_user.section or '' }}"></label>
+          <label>Program<select name="program" required>{% for p in ['BSCS','BSIT'] %}<option {% if current_user.program == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+          <button class="btn btn-primary" type="submit">Register for event <span aria-hidden="true">→</span></button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

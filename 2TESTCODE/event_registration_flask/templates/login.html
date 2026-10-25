@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ role.title() }} login · LSPU{% endblock %}
+{% block content %}
+<div class="auth-layout">
+    <section class="auth-story">
+        <a class="back-link" href="{{ url_for('landing') }}">← All portals</a>
+        <p class="eyebrow"><span class="eyebrow-line"></span> {{ role.upper() }} PORTAL</p>
+        <h1>Your campus<br>workspace<span>.</span></h1>
+        <p class="auth-story-copy">Sign in to continue where campus life and coordination come together.</p>
+        <div class="auth-side-note"><span class="auth-side-mark">L+</span><span>One university.<br>Many ways to take part.</span></div>
+    </section>
+    <section class="auth-panel">
+        <div class="auth-panel-heading"><span class="panel-overline">WELCOME BACK</span><h2>Sign in</h2><p>Enter your account details to continue.</p></div>
+        <form method="post" class="form-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Email address<input name="email" type="email" autocomplete="username" placeholder="you@lspu.edu.ph" required></label>
+            <label>Password<input name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required></label>
+            <button class="btn btn-primary" type="submit">Continue to portal <span aria-hidden="true">→</span></button>
+        </form>
+        {% if role in ['student', 'professor'] %}<p class="auth-help">Can't access your account? <a href="{{ url_for('forgot_password', role=role) }}">Request a password reset</a></p>{% endif %}
+        <div class="auth-panel-footer"><span class="secure-dot"></span> Your account is protected by role-based access.</div>
+    </section>
+</div>
+{% endblock %}

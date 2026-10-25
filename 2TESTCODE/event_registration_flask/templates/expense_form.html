@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Edit expense · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> FINANCIAL RECORDS</p><h1>Edit expense<span>.</span></h1><p class="heading-description">Update the expense record for {{ expense.event.title }}.</p></div><a class="btn btn-light" href="{{ url_for('expenses', eid=expense.event_id) }}">← Back to expenses</a></section>
+<form class="box form-stack management-form" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Expense label<input name="label" maxlength="160" required value="{{ expense.label }}"></label>
+  <label>Amount (₱)<input name="amount" type="number" min="0" step="0.01" required value="{{ '%.2f'|format(expense.amount) }}"></label>
+  <label>Notes<textarea name="notes" maxlength="400" rows="4">{{ expense.notes or '' }}</textarea></label>
+  <div class="form-actions"><button class="btn btn-primary" type="submit">Save changes →</button><a class="btn btn-light" href="{{ url_for('expenses', eid=expense.event_id) }}">Cancel</a></div>
+</form>
+{% endblock %}

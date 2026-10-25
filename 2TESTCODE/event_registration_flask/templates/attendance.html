@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Attendance check-in · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> EVENT OPERATIONS</p><h1>Attendance desk<span>.</span></h1><p class="heading-description">Search by receipt code, student name, or student number, then record time-in and time-out.</p></div></section>
+<section class="box">
+  <form method="get" class="search-form"><label for="q">Find a registration</label><div class="search-row"><input id="q" name="q" value="{{ term }}" placeholder="Receipt code, name, or student number"><select name="event_id" aria-label="Filter by event"><option value="">All accessible events</option>{% for e in events %}<option value="{{ e.id }}" {% if selected_event == e.id %}selected{% endif %}>{{ e.title }}</option>{% endfor %}</select><button class="btn btn-primary" type="submit">Search</button></div></form>
+  <div class="tablebox"><table><thead><tr><th>Student</th><th>Event</th><th>Receipt code</th><th>Time in</th><th>Time out</th><th>Actions</th></tr></thead><tbody>
+  {% for r in registrations %}<tr><td><strong>{{ r.student.name }}</strong><small>{{ r.student.student_number or r.student.email }}</small></td><td>{{ r.event.title }}<small>{{ r.event.event_date }}</small></td><td class="mono-cell">{{ r.receipt_code }}</td><td>{{ r.time_in.strftime('%H:%M · %Y-%m-%d') if r.time_in else 'Not recorded' }}</td><td>{{ r.time_out.strftime('%H:%M · %Y-%m-%d') if r.time_out else 'Not recorded' }}</td><td class="actions">{% if not r.time_in %}<form method="post" action="{{ url_for('attendance', rid=r.id, action='time-in') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Time in</button></form>{% elif not r.time_out %}<form method="post" action="{{ url_for('attendance', rid=r.id, action='time-out') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Time out</button></form>{% else %}<span class="pill">Complete</span>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="6"><div class="table-empty"><strong>No matching registrations.</strong><span>Try another search or event.</span></div></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

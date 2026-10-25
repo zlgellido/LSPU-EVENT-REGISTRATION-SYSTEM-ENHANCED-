@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Event registrations · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> ADMIN WORKSPACE / REGISTRATIONS</p><h1>Event roster<span>.</span></h1><p class="heading-description">{{ event.title }} · {{ registrations|length }} matching registration{{ '' if registrations|length == 1 else 's' }}.</p></div><a class="btn btn-primary" href="{{ url_for('event_registrations_csv', eid=event.id) }}">↓ Export CSV</a></section>
+<section class="box">
+  <form method="get" class="search-form"><label for="q">Search registrations</label><div class="search-row"><input id="q" name="q" value="{{ term }}" placeholder="Name, student number, or receipt code"><button class="btn btn-primary" type="submit">Search</button>{% if term %}<a class="btn btn-light" href="{{ url_for('event_registrations', eid=event.id) }}">Clear</a>{% endif %}</div></form>
+  <div class="tablebox"><table><thead><tr><th>Receipt code</th><th>Student</th><th>Student number</th><th>Section</th><th>Registered</th><th>Attendance</th></tr></thead><tbody>
+  {% for r in registrations %}<tr><td class="mono-cell">{{ r.receipt_code }}</td><td><strong>{{ r.student.name }}</strong><small>{{ r.student.email }}</small></td><td>{{ r.student.student_number or '—' }}</td><td>{{ r.student.section or '—' }}</td><td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{% if r.time_in %}<span class="pill">Checked in</span>{% else %}<span class="pill">Not checked in</span>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="6"><div class="table-empty"><strong>No registrations found.</strong><span>Try a different search or wait for students to register.</span></div></td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="form-actions"><a class="btn btn-light" href="{{ url_for('attendance_dashboard', event_id=event.id) }}">Open attendance check-in →</a><a class="btn btn-light" href="{{ url_for('admin_home') }}">Back to dashboard</a></div>
+</section>
+{% endblock %}

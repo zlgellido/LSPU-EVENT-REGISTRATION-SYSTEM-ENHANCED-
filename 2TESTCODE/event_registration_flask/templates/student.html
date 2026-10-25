@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Student events · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading student-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> STUDENT PORTAL</p><h1>Find your next<br><em>campus moment.</em></h1><p class="heading-description">Explore what's happening around campus and reserve your place.</p></div><div class="heading-aside"><span class="aside-index">01 — DISCOVER</span><p>Ideas become experiences when people show up.</p></div></section>
+<section class="event-discovery">
+    <div class="discovery-top"><div><p class="section-overline">THE EVENT BOARD</p><h2>Open for discovery<span>.</span></h2></div><form class="search-form" method="get" role="search"><label class="sr-only" for="event-search">Search events</label><input id="event-search" name="q" value="{{ term }}" placeholder="Search events or keywords"><button class="btn btn-dark" type="submit">Search <span aria-hidden="true">↗</span></button></form></div>
+    <section class="event-grid">
+    {% for e in events %}
+      <article class="event-card">
+        <div class="event-card-art event-art-{{ loop.index0 % 4 }}"><span class="event-art-label">CAMPUS EVENT <b> / {{ '%02d'|format(loop.index) }}</b></span><span class="event-art-glyph" aria-hidden="true">{{ ['✳','◌','✦','＋'][loop.index0 % 4] }}</span><span class="event-art-bottom">LSPU · TOGETHER</span></div>
+        <div class="event-card-content"><div class="event-card-meta"><span class="pill">{{ e.status }}</span><span class="event-program">{{ e.program }}</span></div><h3>{{ e.title }}</h3><p class="event-description">{{ e.description }}</p><div class="event-facts"><span><i aria-hidden="true">◷</i>{{ e.event_date }}</span><span><i aria-hidden="true">⌖</i>{{ e.venue }}</span></div><div class="event-capacity"><span>Registration</span><span><b>{{ e.confirmed_count }}</b> / {{ e.capacity }}</span></div><div class="capacity-track" role="presentation"><span style="width: {{ [100, (e.confirmed_count * 100 / e.capacity)|int]|min }}%"></span></div><a class="btn btn-outline" href="{{ url_for('event_detail',eid=e.id) }}">Explore event <span aria-hidden="true">↗</span></a></div>
+      </article>
+    {% else %}
+      <div class="empty-state"><span class="empty-mark">⌕</span><h3>No events found</h3><p>Try another search, or check back when new campus events are posted.</p></div>
+    {% endfor %}
+    </section>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit event' if event else 'Create event' }} · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> EVENT MANAGEMENT</p><h1>{{ 'Edit event' if event else 'Create an event' }}<span>.</span></h1><p class="heading-description">Set the details, schedule, and capacity for a campus event.</p></div><span class="aside-index">ADMIN WORKSPACE / EVENTS</span></section>
+<form class="box formgrid management-form" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-section-label fullrow"><span>01</span><strong>Event information</strong></div>
+  <label class="fullrow">Event title<input name="title" required value="{{ event.title if event else '' }}" placeholder="e.g. CCS Student Assembly"></label>
+  <label>Program<select name="program">{% for p in ['BSCS','BSIT','CCS','All Programs'] %}<option {% if event and event.program==p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+  <label>Venue<input name="venue" required value="{{ event.venue if event else '' }}" placeholder="Building, room, or campus location"></label>
+  <label class="fullrow">Description<textarea name="description" rows="4" placeholder="What should participants know about this event?">{{ event.description if event else '' }}</textarea></label>
+  <div class="form-section-label fullrow"><span>02</span><strong>Main-page spotlight</strong></div>
+  <label class="fullrow">Event photo <span class="label-optional">OPTIONAL · JPG, PNG, WEBP · MAX 5 MB</span><input type="file" name="event_image" accept="image/jpeg,image/png,image/webp">{% if event and event.image_filename %}<small>Current photo: {{ event.image_filename }}</small>{% endif %}</label>
+  <label class="fullrow">Feature this event on the main page?<select name="featured"><option value="0" {% if not event or not event.featured %}selected{% endif %}>No — keep it in the event list</option><option value="1" {% if event and event.featured %}selected{% endif %}>Yes — make this the campus spotlight</option></select><small>Only one event can be featured at a time. Featuring this event replaces the current spotlight.</small></label>
+  <div class="form-section-label fullrow"><span>03</span><strong>Schedule and capacity</strong></div>
+  <label>Date<input type="date" name="event_date" required value="{{ event.event_date.isoformat() if event else '' }}"></label>
+  <label>Maximum capacity<input type="number" min="1" name="capacity" required value="{{ event.capacity if event else 100 }}"></label>
+  <label>Start time<input type="time" name="start_time" required value="{{ event.start_time.strftime('%H:%M') if event else '08:00' }}"></label>
+  <label>End time<input type="time" name="end_time" required value="{{ event.end_time.strftime('%H:%M') if event else '17:00' }}"></label>
+  <label>Lunch break starts <span class="label-optional">OPTIONAL</span><input type="time" name="lunch_start" value="{{ event.lunch_start.strftime('%H:%M') if event and event.lunch_start else '' }}"></label>
+  <label>Lunch break ends <span class="label-optional">OPTIONAL</span><input type="time" name="lunch_end" value="{{ event.lunch_end.strftime('%H:%M') if event and event.lunch_end else '' }}"></label>
+  <div class="form-actions fullrow"><button class="btn btn-primary" type="submit">Save event <span aria-hidden="true">→</span></button><a class="btn btn-light" href="{{ url_for('admin_home') }}">Cancel</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} · LSPU{% endblock %}
+{% block content %}
+<section class="error-page"><span class="error-code">{{ code }}</span><p class="eyebrow"><span class="eyebrow-line"></span> SOMETHING WENT OFF TRACK</p><h1>Let's get you<br>back on course<span>.</span></h1><p>{{ message }}</p><a class="btn btn-primary" href="{{ url_for('landing') }}">Return to home <span aria-hidden="true">→</span></a></section>
+{% endblock %}

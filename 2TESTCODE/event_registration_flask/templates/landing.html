@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Welcome · LSPU Event Management System{% endblock %}
+{% block content %}
+<section class="landing-hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="eyebrow-line"></span> LAGUNA STATE POLYTECHNIC UNIVERSITY</div>
+    <p class="hero-kicker">CAMPUS EVENT MANAGEMENT SYSTEM</p>
+    <h1>Campus life,<br><em>in motion.</em></h1>
+    <p class="hero-description">Discover what's happening on campus, register for events, and keep every campus experience in one place.</p>
+    <div class="hero-note"><span class="note-dot"></span> Your campus. Your community. Your next experience.</div>
+  </div>
+  <div class="featured-event-panel">
+    {% if featured_event %}
+      <div class="featured-label"><span class="featured-live-dot"></span> FEATURED CAMPUS EVENT <span class="featured-index">LSPU / {{ '%02d'|format(featured_event.id) }}</span></div>
+      {% if featured_event.image_filename %}<img class="featured-event-image" src="{{ url_for('static', filename='uploads/' ~ featured_event.image_filename) }}" alt="Photo for {{ featured_event.title }}">{% else %}<div class="featured-image-placeholder"><span>LS</span><small>YOUR CAMPUS · YOUR STORY</small></div>{% endif %}
+      <div class="featured-event-content"><p class="featured-event-date">{{ featured_event.event_date.strftime('%B %d, %Y') }} · {{ featured_event.venue }}</p><h2>{{ featured_event.title }}</h2><p>{{ featured_event.description or 'Join the LSPU community for this upcoming campus event.' }}</p><a class="btn btn-primary" href="{{ url_for('sign_in', role='student') }}">Explore event <span aria-hidden="true">↗</span></a></div>
+    {% else %}
+      <div class="featured-label">CAMPUS SPOTLIGHT <span class="featured-index">LSPU</span></div>
+      <div class="featured-image-placeholder featured-empty"><span>What's happening<br>on campus?</span><small>EVENTS · PEOPLE · COMMUNITY</small></div>
+      <div class="featured-event-content"><p class="featured-event-date">THE LSPU CAMPUS CALENDAR</p><h2>Something worth showing up for.</h2><p>The next campus highlight will appear here when an administrator features an event.</p></div>
+    {% endif %}
+  </div>
+</section>
+<section class="portal-section" aria-labelledby="portal-heading">
+  <div class="section-intro"><div><p class="eyebrow"><span class="eyebrow-line"></span> YOUR SPACE TO BEGIN</p><h2 id="portal-heading">Choose your portal<span>.</span></h2></div><p>Continue to the workspace designed for your role.</p></div>
+  <div class="portal-grid">
+    {% for role, desc in [('student', 'Discover campus activities, register for events, and keep your receipts in one place.'), ('professor', 'Access assigned sections and manage student roster exports.'), ('admin', 'Coordinate events, accounts, expenses, and system activity.')] %}
+    <a class="portal-card portal-{{ role }}" href="{{ url_for('sign_in', role=role) }}"><div class="portal-card-top"><span class="portal-number">0{{ loop.index }}</span><span class="portal-icon" aria-hidden="true">{{ {'student':'↗','professor':'▤','admin':'⌘'}[role] }}</span></div><div class="portal-card-copy"><p class="portal-overline">{{ {'student':'FOR STUDENTS','professor':'FOR FACULTY','admin':'FOR ADMINISTRATION'}[role] }}</p><h3>{{ role.title() }}</h3><p>{{ desc }}</p></div><div class="portal-card-bottom"><span>Enter portal</span><span class="portal-arrow" aria-hidden="true">↗</span></div></a>
+    {% endfor %}
+  </div>
+</section>
+<section class="landing-footnote"><span class="footnote-mark">✳</span><p>Good things happen when a campus comes together.</p><span class="footnote-rule"></span></section>
+{% endblock %}

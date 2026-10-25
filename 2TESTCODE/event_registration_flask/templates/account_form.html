@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Edit account · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> ADMIN WORKSPACE</p><h1>Edit account<span>.</span></h1><p class="heading-description">Update this user's details. Leave the password blank to keep the current password.</p></div><a class="btn btn-light" href="{{ url_for('accounts') }}">← Back to accounts</a></section>
+<form class="box formgrid management-form" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-section-label fullrow"><span>01</span><strong>Account information</strong></div>
+  <label>Role<input value="{{ user.role.title() }}" disabled></label>
+  <label>Full name<input name="name" required maxlength="120" value="{{ user.name }}"></label>
+  <label class="fullrow">Email address<input name="email" type="email" required maxlength="160" value="{{ user.email }}"></label>
+  {% if user.role == 'student' %}
+  <label>Student number<input name="student_number" required maxlength="40" value="{{ user.student_number or '' }}"></label>
+  <label>Year level<select name="year_level">{% for y in ['First Year','Second Year','Third Year','Fourth Year'] %}<option {% if user.year_level == y %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></label>
+  <label>Section<input name="section" required pattern="[1-4][A-Z]" maxlength="2" value="{{ user.section or '' }}"></label>
+  <label>Program<select name="program">{% for p in ['BSCS','BSIT'] %}<option {% if user.program == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+  {% else %}
+  <label class="fullrow">Handled sections <span class="label-optional">COMMA SEPARATED</span><input name="handled_sections" value="{{ user.handled_sections or '' }}" placeholder="1A, 2B"></label>
+  {% endif %}
+  <label class="fullrow">New password <span class="label-optional">OPTIONAL · 12+ CHARACTERS</span><input name="password" type="password" minlength="12" autocomplete="new-password" placeholder="Leave blank to keep current password"></label>
+  <div class="form-actions fullrow"><button class="btn btn-primary" type="submit">Save changes →</button><a class="btn btn-light" href="{{ url_for('accounts') }}">Cancel</a></div>
+</form>
+{% endblock %}

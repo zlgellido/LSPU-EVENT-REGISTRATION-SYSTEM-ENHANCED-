@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#142b4a">
+    <title>{% block title %}LSPU Event Management System{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{{ url_for('landing') }}" aria-label="LSPU Event Management System home">
+                <span class="brand-mark"><img src="{{ url_for('static', filename='lspu-logo.png') }}" alt="LSPU logo" class="school-logo"></span>
+                <span class="brand-copy"><strong>LSPU</strong><small>EVENT MANAGEMENT</small></span>
+            </a>
+            <div class="header-right">
+                <span class="header-context">STA. CRUZ · CAMPUS EVENTS</span>
+                {% if current_user.is_authenticated %}
+                <div class="user-menu"><span class="user-avatar" aria-hidden="true">{{ current_user.name[:1]|upper }}</span><span class="user-name">{{ current_user.name }}</span><a class="logout-link" href="{{ url_for('change_password') }}">Password</a><a class="logout-link" href="{{ url_for('sign_out') }}">Log out <span aria-hidden="true">↗</span></a></div>
+                {% else %}
+                <a class="header-home" href="{{ url_for('landing') }}">Home <span aria-hidden="true">↗</span></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="page-shell" id="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}" role="status"><span class="flash-mark" aria-hidden="true">{{ '✓' if category in ['success', 'message'] else '!' }}</span><span>{{ message }}</span></div>
+            {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer"><span class="footer-brand">LSPU <i>×</i> CAMPUS LIFE</span><span>Event Management System <span class="footer-dot">•</span> Educational Project</span></footer>
+</body>
+</html>

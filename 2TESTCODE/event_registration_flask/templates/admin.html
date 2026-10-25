@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard · LSPU{% endblock %}
+{% block content %}
+<section class="admin-intro">
+  <div class="heading"><div><small>ADMINISTRATION / OVERVIEW</small><h1>Good day, administrator<span>.</span></h1><p>Your overview of campus events, registrations, and system activity.</p></div><a class="btn btn-primary" href="{{ url_for('event_new') }}"><span aria-hidden="true">＋</span> Create event</a></div>
+  <div class="stats"><div><span>Active + archived events</span><b>{{ events|length+past|length }}</b><small class="stat-caption">Across event records</small></div><div><span>Student accounts</span><b>{{ student_count }}</b><small class="stat-caption">Registered students</small></div><div><span>Total registrations</span><b>{{ registration_count }}</b><small class="stat-caption">Current system records</small></div><div><span>System status</span><b class="green">● Running</b><small class="stat-caption">Application overview</small></div></div>
+</section>
+<section class="admin-section">
+  <div class="section-head"><div><p class="section-overline">01 / EVENT OPERATIONS</p><h2>Active events</h2></div><div class="form-actions"><a class="btn btn-light" href="{{ url_for('attendance_dashboard') }}">Attendance desk ↗</a><a class="btn btn-light" href="{{ url_for('accounts') }}">Manage accounts <span aria-hidden="true">↗</span></a></div></div>
+  <div class="tablebox"><table><thead><tr><th>Event</th><th>Date</th><th>Program</th><th>Registration</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+  {% for e in events %}<tr><td><strong>{{ e.title }}</strong><small>{{ e.venue }}</small></td><td>{{ e.event_date }}</td><td>{{ e.program }}</td><td><strong>{{ e.confirmed_count }}/{{ e.capacity }}</strong><small>{{ e.waiting_count }} waiting</small></td><td><span class="pill">{{ e.status }}</span></td><td class="actions"><a href="{{ url_for('event_edit',eid=e.id) }}">Edit</a><a href="{{ url_for('event_registrations',eid=e.id) }}">Registrations</a><a href="{{ url_for('expenses',eid=e.id) }}">Expenses</a>{% if e.featured %}<span class="pill featured-pill">On main page</span><form method="post" action="{{ url_for('event_unfeature',eid=e.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Unpin spotlight</button></form>{% else %}<form method="post" action="{{ url_for('event_feature',eid=e.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Pin to main page</button></form>{% endif %}{% if e.status=='Ended' %}<form method="post" action="{{ url_for('event_archive',eid=e.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Archive</button></form>{% endif %}<form method="post" action="{{ url_for('event_delete',eid=e.id) }}" onsubmit="return confirm('Delete this event?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="danger" type="submit">Delete</button></form></td></tr>
+  {% else %}<tr><td colspan="6"><div class="table-empty"><strong>No active events.</strong><span>Create an event to start organizing campus activities.</span></div></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="admin-section">
+  <div class="section-head"><div><p class="section-overline">02 / ACCOUNT SUPPORT</p><h2>Password reset requests</h2><p class="section-subtitle">Review requests carefully before approving account access changes.</p></div></div>
+  <div class="tablebox"><table class="reset-table"><thead><tr><th>Requested</th><th>Account details</th><th>Reason / admin note</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+  {% for r in reset_requests %}<tr>
+    <td class="date-cell">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+    <td><strong>{{ r.role.title() }}</strong><small>{{ r.email }}</small><small>ID provided: {{ r.account_identifier }}</small></td>
+    <td>{{ r.reason or 'No reason provided' }}{% if r.admin_note %}<small>Admin: {{ r.admin_note }}</small>{% endif %}</td>
+    <td><span class="pill">{{ r.status.title() }}</span></td>
+    <td class="reset-actions">
+      {% if r.status == 'pending' %}
+      <form method="post" action="{{ url_for('review_password_reset', request_id=r.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="approve"><input name="admin_note" placeholder="Verification note (optional)" maxlength="500" aria-label="Optional verification note"><button type="submit">Approve</button></form>
+      <form method="post" action="{{ url_for('review_password_reset', request_id=r.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reject"><input name="admin_note" placeholder="Reason for rejection" maxlength="500" aria-label="Reason for rejection"><button class="danger" type="submit">Reject</button></form>
+      {% elif r.status == 'approved' %}
+      <form method="post" action="{{ url_for('complete_password_reset', request_id=r.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Temporary password<input name="temporary_password" type="password" minlength="12" required autocomplete="new-password"></label><input name="admin_note" placeholder="Admin note (optional)" maxlength="500" aria-label="Optional admin note"><button type="submit" onclick="return confirm('Reset this account password now?')">Set password & complete</button></form>
+      {% else %}<small>Reviewed{% if r.reviewed_at %} {{ r.reviewed_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}</small>{% endif %}
+    </td>
+  </tr>{% else %}<tr><td colspan="5"><div class="table-empty"><strong>No password reset requests yet.</strong><span>New requests will appear here for review.</span></div></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="admin-section">
+  <div class="section-head"><div><p class="section-overline">03 / FINANCIAL OVERVIEW</p><h2>Past events & expenses</h2></div></div>
+  <div class="tablebox"><table><thead><tr><th>Event</th><th>Date</th><th>Program</th><th>Participants</th><th>Total expenses</th><th>Breakdown</th></tr></thead><tbody>
+  {% for e in past %}<tr><td><strong>{{ e.title }}</strong><small>{{ e.description }}</small></td><td>{{ e.event_date }}</td><td>{{ e.program }}</td><td>{{ e.confirmed_count }}</td><td class="money-cell">₱{{ '%.2f'|format(e.total_expenses) }}</td><td><a href="{{ url_for('expenses',eid=e.id) }}">View details ↗</a></td></tr>
+  {% else %}<tr><td colspan="6"><div class="table-empty"><strong>No past events to show.</strong><span>Ended and archived events will appear here.</span></div></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="admin-section">
+  <div class="section-head"><div><p class="section-overline">04 / SYSTEM HEALTH</p><h2>Activity & alerts</h2></div></div>
+  <div class="two admin-logs"><section class="box"><div class="box-heading"><p class="section-overline">AUDIT TRAIL</p><h2>Recent activity</h2></div>{% for l in logs %}<p class="log"><b>{{ l.action }}</b><br>{{ l.details }}<small>{{ l.actor }} · {{ l.created_at.strftime('%m-%d %H:%M') }}</small></p>{% else %}<p class="muted-empty">No activity has been recorded yet.</p>{% endfor %}</section><section class="box"><div class="box-heading"><p class="section-overline">ATTENTION</p><h2>Warnings & errors</h2></div>{% for l in alerts %}<p class="log alert-log"><b>{{ l.level }} · {{ l.action }}</b><br>{{ l.details }}<small>{{ l.created_at.strftime('%m-%d %H:%M') }}</small></p>{% else %}<p class="muted-empty">No warnings recorded.</p>{% endfor %}</section></div>
+</section>
+{% endblock %}

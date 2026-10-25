@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Registration receipt · LSPU{% endblock %}
+{% block content %}
+<section class="receipt-shell">
+  <div class="receipt-brandline"><span class="receipt-brand-mark">L+</span><span><strong>LAGUNA STATE POLYTECHNIC UNIVERSITY</strong><small>EVENT MANAGEMENT SYSTEM</small></span><span class="receipt-stamp">OFFICIAL<br>RECEIPT</span></div>
+  <div class="receipt-success"><span class="receipt-check">✓</span><div><p class="section-overline">REGISTRATION CONFIRMED</p><h1>You're on the list<span>.</span></h1><p>Keep this confirmation for your event records.</p></div></div>
+  <div class="receipt-code-row"><span><small>REGISTRATION REFERENCE</small><strong>{{ registration.receipt_code }}</strong></span><span class="receipt-status">CONFIRMED</span></div>
+  <div class="receipt-details"><div><small>REGISTERED STUDENT</small><strong>{{ registration.student.name }}</strong><span>{{ registration.student.student_number }}</span></div><div><small>EVENT</small><strong>{{ registration.event.title }}</strong><span>{{ registration.event.program }}</span></div><div><small>EVENT DATE & VENUE</small><strong>{{ registration.event.event_date }}</strong><span>{{ registration.event.venue }}</span></div><div><small>REGISTRATION DATE</small><strong>{{ registration.created_at.strftime('%Y-%m-%d %H:%M') }}</strong><span>Local system time</span></div></div>
+  <div class="receipt-bottom"><p>Present this receipt to the event organizers for registration verification.</p><button class="btn btn-primary" onclick="window.print()" type="button">Print receipt <span aria-hidden="true">↗</span></button></div>
+</section>
+{% endblock %}

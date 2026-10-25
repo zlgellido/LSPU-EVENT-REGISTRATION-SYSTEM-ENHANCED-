@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Account management · LSPU{% endblock %}
+{% block content %}
+<section class="page-heading compact-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> ADMIN WORKSPACE</p><h1>Account directory<span>.</span></h1><p class="heading-description">Create student and professor accounts and review existing records.</p></div></section>
+<div class="two accounts-layout">
+  <form class="box form-stack" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="box-heading"><p class="section-overline">NEW ACCOUNT</p><h2>Create an account</h2><p>Choose a role to show the appropriate account fields.</p></div>
+    <label>Account role<select name="role" id="role"><option value="student">Student</option><option value="professor">Professor</option></select></label>
+    <label>Full name<input name="name" required autocomplete="name" placeholder="First and last name"></label>
+    <label>Email address<input name="email" type="email" required autocomplete="email" placeholder="name@lspu.edu.ph"></label>
+    <label>Password <span class="label-optional">8+ CHARACTERS</span><input name="password" type="password" minlength="8" required autocomplete="new-password"></label>
+    <div id="student-fields" class="role-fields"><div class="form-section-label"><span>01</span><strong>Student details</strong></div><label>Student number<input name="student_number" placeholder="Student ID"></label><label>Year level<select name="year_level"><option>First Year</option><option>Second Year</option><option>Third Year</option><option>Fourth Year</option></select></label><label>Section <span class="label-optional">E.G. 2B</span><input name="section" pattern="[1-4][A-Z]" maxlength="2" placeholder="2B"></label><label>Program<select name="program"><option>BSCS</option><option>BSIT</option></select></label></div>
+    <div id="prof-fields" class="role-fields" hidden><div class="form-section-label"><span>01</span><strong>Faculty details</strong></div><label>Handled sections <span class="label-optional">COMMA SEPARATED</span><input name="handled_sections" placeholder="1A, 2B"></label></div>
+    <button class="btn btn-primary" type="submit">Create account <span aria-hidden="true">→</span></button>
+  </form>
+  <section class="box accounts-list"><div class="box-heading"><p class="section-overline">DIRECTORY</p><h2>Existing accounts</h2><p>Account records currently available in the system.</p></div><div class="tablebox"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Section</th><th>Actions</th></tr></thead><tbody>{% for u in users %}<tr><td><strong>{{ u.name }}</strong></td><td><span class="table-tag">{{ u.role }}</span></td><td>{{ u.email }}</td><td>{{ u.section or u.handled_sections or '—' }}</td><td class="actions"><a href="{{ url_for('account_edit', uid=u.id) }}">Edit</a><form method="post" action="{{ url_for('account_delete', uid=u.id) }}" onsubmit="return confirm('Delete this account? Student accounts with registrations cannot be deleted.')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="danger" type="submit">Delete</button></form></td></tr>{% else %}<tr><td colspan="5">No accounts found.</td></tr>{% endfor %}</tbody></table></div></section>
+</div>
+<script>
+(function () {
+  const role = document.getElementById('role');
+  const studentFields = document.getElementById('student-fields');
+  const professorFields = document.getElementById('prof-fields');
+  function updateRoleFields() {
+    const isStudent = role.value === 'student';
+    studentFields.hidden = !isStudent;
+    professorFields.hidden = role.value !== 'professor';
+    studentFields.querySelectorAll('input, select').forEach((field) => { field.disabled = !isStudent; });
+    professorFields.querySelectorAll('input, select').forEach((field) => { field.disabled = role.value !== 'professor'; });
+  }
+  role.addEventListener('change', updateRoleFields);
+  updateRoleFields();
+})();
+</script>
+{% endblock %}
